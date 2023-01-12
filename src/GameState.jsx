@@ -9,6 +9,9 @@ const initialState = {
     shake: 0,
     keys: [],
     modalOpen: false,
+    dialogOpen: false,
+    dialogType: '',
+    modalMsg: '',
     attempts: 0
 }
 
@@ -23,8 +26,11 @@ function reducer(state, action) {
         case 'ADD_NEW_GUESS': return { ...state, guesses: [...state.guesses, value], shake: false }
         case 'TOGGLE_FLIPPING': return { ...state, flipped: state.flipped.map((f, index) => index === state.attempts ? !f : f), attempts: state.attempts + value, currentGuess: [] }
         case 'SHAKE_ROW': return {...state, shake: state.shake + 1}
-        case 'SHOW_MODAL': return { ...state, modalOpen: true }
-        case 'HIDE_MODAL': return { ...state, modalOpen: false }
+        case 'SHOW_MODAL': return { ...state, modalOpen: true, modalMsg: value }
+        case 'HIDE_MODAL': return { ...state, modalOpen: false, modalMsg: ''}
+        case 'SHOW_DIALOG': return {...state, dialogOpen: true, dialogType: value}
+        case 'HIDE_DIALOG': return {...state, dialogOpen: false}
+        case 'RESET_GAME': return {...initialState}
         default: return state;
     }
 }
@@ -43,7 +49,7 @@ const GameState = ({ children }) => {
 
         const getNewAnswer = (arr) => {
             const rand = Math.floor(Math.random() * arr.length)
-            console.log('New Answer', arr[rand].toUpperCase())
+            /* console.log('New Answer', arr[rand].toUpperCase()) */
             dispatch({ type: 'ADD_ANSWER', value: arr[rand].toUpperCase() })
         }
         if (!gameInfo.answer) {
@@ -52,7 +58,7 @@ const GameState = ({ children }) => {
     }, [gameInfo.answer])
 
     return (
-        <GameContext.Provider value={{ dispatch, shake: gameInfo.shake, modalOpen: gameInfo.modalOpen, currentGuess: gameInfo.currentGuess, guesses: gameInfo.guesses, answer: gameInfo.answer, flipped: gameInfo.flipped, attempts: gameInfo.attempts, shakeRow: gameInfo.shakeRow }}>
+        <GameContext.Provider value={{ dispatch, dialogOpen: gameInfo.dialogOpen, dialogType: gameInfo.dialogType, modalMsg: gameInfo.modalMsg, shake: gameInfo.shake, modalOpen: gameInfo.modalOpen, currentGuess: gameInfo.currentGuess, guesses: gameInfo.guesses, answer: gameInfo.answer, flipped: gameInfo.flipped, attempts: gameInfo.attempts, shakeRow: gameInfo.shakeRow }}>
             {children}
         </GameContext.Provider>
     )

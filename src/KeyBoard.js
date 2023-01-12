@@ -36,7 +36,7 @@ const SpecialKey = styled(LetterKey)`
 
 const Key = ({ val, colors }) => {
   const foundVal = colors.find((el) => el.val === val);
-  const { currentGuess, answer, dispatch } = useContext(GameContext);
+  const { currentGuess, answer, attempts, dispatch } = useContext(GameContext);
 
   return val === 'ENTER' || val === 'BACK' ?
     <SpecialKey
@@ -44,7 +44,7 @@ const Key = ({ val, colors }) => {
       key={val}
       onClick={
         () => val === 'ENTER' ?
-          submitGuess(currentGuess, answer, dispatch)
+          submitGuess(currentGuess, answer, attempts, dispatch)
           :
           deleteGuess(currentGuess, dispatch)
       }
@@ -67,7 +67,6 @@ export const KeyBoard = () => {
   const { guesses, answer } = useContext(GameContext);
 
   const keyColors = useMemo(() => {
-    console.log('setting key colors');
     const colors = [];
     for (let guess of guesses) {
       const newGuess = guess.map((letter, index) =>

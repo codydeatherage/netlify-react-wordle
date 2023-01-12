@@ -2,8 +2,6 @@ import React, { useEffect, useContext, useRef, useState } from 'react'
 import styled from 'styled-components'
 import { GameContext } from './GameState'
 import allowed from './allowed.txt'
-import Snackbar from '@mui/material/Snackbar';
-import Slide from '@mui/material/Slide';
 import Grow from '@mui/material/Grow';
 
 const GameContainer = styled.div`
@@ -90,27 +88,27 @@ export const deleteGuess = (currentGuess, dispatch) => {
     }
 }
 
-export const submitGuess = (currentGuess, answer, dispatch) => {
-    if (currentGuess.length === 5) {
-        if (currentGuess.join('').toString().toUpperCase() === answer) {
-            dispatch({ type: 'SHOW_MODAL' });
+export const submitGuess = (currentGuess, answer, attempts, dispatch) => {
+    if (currentGuess.length === 5) {//guess is 5 chars long
+        if (currentGuess.join('').toString().toUpperCase() === answer) {//guess is correct
+            dispatch({ type: 'SHOW_MODAL', value: 'Congratulations! You solved it!' });
+            dispatch({ type: 'SHOW_DIALOG', value: 'win' })
         }
         const guess = currentGuess.join('').toString().toLowerCase();
         const guessCheck = binarySearch(allowedGuesses, guess);
-        if (guessCheck > 0) {
+
+        if (guessCheck > 0) {//guess is valid
             dispatch({ type: 'TOGGLE_FLIPPING', value: 1 });
             dispatch({ type: 'ADD_NEW_GUESS', value: currentGuess });
         }
-        else{
-            dispatch({type: 'SHAKE_ROW'})
-            dispatch({type: 'SHOW_MODAL'})
+        else {//guess is invalid
+            dispatch({ type: 'SHAKE_ROW' })
+            dispatch({ type: 'SHOW_MODAL', value: 'Invalid submission' })
         }
     }
-    else{
-        console.log('Guess is too short')
-        dispatch({type: 'SHAKE_ROW'})
-        dispatch({type: 'SHOW_MODAL'})
-
+    else {//guess is not long enough
+        dispatch({ type: 'SHAKE_ROW' })
+        dispatch({ type: 'SHOW_MODAL', value: 'Not enough letters' })
     }
 }
 
@@ -123,13 +121,12 @@ export const addLetter = (input, currentGuess, dispatch) => {
 
 const GameArea = ({ children }) => {
     const ref = useRef(null)
-    const [open, setOpen] = useState(false);
-    const { answer, currentGuess, dispatch } = useContext(GameContext);
+    const { answer, currentGuess, dispatch, attempts } = useContext(GameContext);
 
     const handleKeyDown = (event) => {
         switch (event.key.toUpperCase()) {
             case 'BACKSPACE': return deleteGuess(currentGuess, dispatch)
-            case 'ENTER': return submitGuess(currentGuess, answer, dispatch)
+            case 'ENTER': return submitGuess(currentGuess, answer,attempts, dispatch)
             default: return addLetter(event.key, currentGuess, dispatch)
         }
     }
